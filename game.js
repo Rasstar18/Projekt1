@@ -2,7 +2,6 @@
 var canvas = document.getElementById("Canvas");
 var ctx = canvas.getContext("2d");
 
-var x = 0;
 
 class Block{
     constructor(x, y, width, height, color){
@@ -26,11 +25,11 @@ class Block{
 }
 
 let ground = new Block(0,760, 1914, 184, "grey");
-let block = new Block(750,690, 70, 70, "red");
-let block1 = new Block(1150,690, 70, 70, "red");
-let block2 = new Block(1550,690, 70, 70, "red");
-let block3 = new Block(1950,690, 70, 70, "red");
-let block4 = new Block(2350,690, 70, 70, "red")
+let block = new Block(750,700, 60, 60, "red");
+let block1 = new Block(1150,700, 60, 60, "red");
+let block2 = new Block(1550,700, 60, 60, "red");
+let block3 = new Block(1950,700, 60, 60, "red");
+let block4 = new Block(2350,700, 60, 60, "red")
 let blocks = [block,block1,block2,block3,block4];
 
 class Character{
@@ -76,25 +75,42 @@ class Character{
 
 
 
-let character = new Character(500, 580, 90, 180, "green");
+let character = new Character(200, 580, 90, 180, "green");
 let jump = false;
 
-
+function collision(b){
+    if(character.x <= b.x + b.width &&
+        character.x + character.width >= b.x &&
+        character.y <= b.y + b.height &&
+        character.height + character.y >= b.y){
+            return true;
+        }
+    else {
+        return false;
+    }
+}
+    
+let pause = true;
 
 function gameloop() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    for(var i = 0; i < blocks.length; i++){
+    if(pause){ 
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        for(var i = 0; i < blocks.length; i++){
+        
         blocks[i].drawBlock();
         blocks[i].moveBlock();
-        if(character.x + character.width == blocks[i].x || character.y + character.height == blocks[i].y){
-            console.log(character)
-            alert("GAME OVER");
-        }
+        if(collision(blocks[i])) {
+                pause = false;
+            } 
+        }  
+        character.drawCharacter();
+        ground.drawBlock();
+        character.gravitation();
+        window.requestAnimationFrame(gameloop);
     }
-    character.drawCharacter();
-    ground.drawBlock();
-    character.gravitation();
-  window.requestAnimationFrame(gameloop);  
+    if(!pause){
+        
+    }     
 }
 
 window.onload = gameloop();
