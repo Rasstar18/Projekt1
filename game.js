@@ -2,7 +2,8 @@
 var canvas = document.getElementById("Canvas");
 var ctx = canvas.getContext("2d");
 
-var again;
+let fast = 0;
+let speed = 0;
 
 class Block{
     constructor(x, y, width, height, color){
@@ -20,23 +21,71 @@ class Block{
         ctx.fill();
     }
 
-    moveBlock(){
-        this.x-=7;
+    imageBlock(){
+        var stone = new Image();
+        stone.src = "stone.png";
+        ctx.drawImage(stone,this.x + 5,this.y + 5,this.width,this.height);
     }
+
+    moveBlock(){
+        if(fast == 50){
+            speed += 1;
+            fast = 0;
+        }
+        if(speed < 25){
+            this.x-=7;  
+        }
+        if(speed < 50 && speed >= 25){
+            this.x-=10;  
+        }
+        if(speed < 75 && speed >= 50){
+            this.x-=13;  
+        }
+        if(speed < 100 && speed >= 75){
+            this.x-=16;  
+        }
+        if(speed < 125 && speed >= 100){
+            this.x-=19;  
+        }
+        if(speed < 150 && speed >= 125){
+            this.x-=22;  
+        }
+        if(speed < 175 && speed >= 150){
+            this.x-=25;  
+        }
+    }
+    
 }
 
-let ground = new Block(0,760, 1914, 184, "grey");
+let background = new Image();
+background.src = "The_Griffin_House.png";
 
-let xPos = 500;
-let blocks = [];
-for(let a=0;a<150;a++) {
-    let distance = Math.floor((Math.random() * 500) + 300)
-    xPos += distance;
-    blocks.push(new Block(xPos,700,60,60,"red"));
+let animation = [];
+for(let b=1; b<14; b++) {
+    let frame = new Image();
+    frame.src = "peter"+b+".png";
+    animation.push(frame);
+}
+
+let ground = new Block(0,760, 1914, 184, "lightgrey");
+
+
+let blocks;
+function generateObstacles() {
+    let xPos = 500;
+    blocks = [];
+
+    for(let a=0;a<250;a++) {
+        let distance = Math.floor((Math.random() * 700) + 500)
+        xPos += distance;
+        blocks.push(new Block(xPos,700,60,60)); 
+    }
 }
 
 let count = 0;
 let check = 0;
+
+let playerAlive = true;
 
 class Character{
     constructor(x, y, width, height, color){
@@ -49,6 +98,7 @@ class Character{
         this.jumpSpeed = 14;
         this.color = color;
         this.land = true;
+        this.frame = new Image();
     }
 
     drawCharacter(){
@@ -78,84 +128,25 @@ class Character{
         }
         this.y += this.speedY; 
     }
-    movingCharacter(){
-        let length = 10;
-        //let wide = 30;
+    updateAnimation(){
         if(count == 4){
-            check += 1
+            check += 1;
             count = 0;
         }
-        if(check == 1){
-            var peter1 = new Image();
-            peter1.src = "Peter1.png";
-            ctx.drawImage(peter1,this.x ,this.y + length,this.width,this.height);  
+
+        if(check == 13) {
+            check = 0;
         }
-        if(check ==  2){
-            var peter2 = new Image();
-            peter2.src = "Peter2.png"; 
-            ctx.drawImage(peter2,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 3){
-            var peter3 = new Image();
-            peter3.src = "Peter3.png"; 
-            ctx.drawImage(peter3,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 4){
-            var peter4 = new Image();
-            peter4.src = "Peter4.png"; 
-            ctx.drawImage(peter4,this.x ,this.y + length,this.width,this.height);
-        }
-        if(check == 5){
-            var peter5 = new Image();
-            peter5.src = "Peter5.png"; 
-            ctx.drawImage(peter5,this.x,this.y + length,this.width,this.height);
-        }
-        if(check == 6){
-            var peter6 = new Image();
-            peter6.src = "Peter6.png"; 
-            ctx.drawImage(peter6,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 7){
-            var peter7 = new Image();
-            peter7.src = "Peter7.png"; 
-            ctx.drawImage(peter7,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 8){
-            var peter8 = new Image();
-            peter8.src = "Peter8.png"; 
-            ctx.drawImage(peter8,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 9){
-            var peter9 = new Image();
-            peter9.src = "Peter9.png"; 
-            ctx.drawImage(peter9,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 10){
-            var peter10 = new Image();
-            peter10.src = "Peter10.png"; 
-            ctx.drawImage(peter10,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 11){
-            var peter11 = new Image();
-            peter11.src = "Peter11.png"; 
-            ctx.drawImage(peter11,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 12){
-            var peter12 = new Image();
-            peter12.src = "Peter12.png"; 
-            ctx.drawImage(peter12,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 13){
-            var peter13 = new Image();
-            peter13.src = "Peter13.png"; 
-            ctx.drawImage(peter13,this.x ,this.y + length,this.width,this.height); 
-        }
-        if(check == 14){
-            var peter14 = new Image();
-            peter14.src = "Peter1.png"; 
-            ctx.drawImage(peter14,this.x ,this.y + length,this.width,this.height); 
-            check = 1;
-        }
+
+        this.frame = animation[check];
+
+    }
+    draw() {
+        let lengthy = 35;
+        let lengthw = 60;
+        let h = this.height + 50;
+        let w = this.width + 125;
+        ctx.drawImage(this.frame,this.x - lengthw,this.y - lengthy, w, h); 
     }
 }
 
@@ -175,79 +166,107 @@ function collision(b){
         return false;
     }
 }
+
+let control = 0;
+let score = 0;
+let highscore = {};
+let list = [];
+
+
+function drawScore(){
+    if(control == 30){
+        score+=1;
+        control = 0;
+    }
     
-let pause = true;
-let start = false;
-let restart = false;
+    ctx.font = "80px Arial";
+    ctx.fillStyle = "yellow";
+    ctx.fillText(score,850,70);
+
+    highscore = {score: score};
+    list.push(highscore);
+    list.sort(function(a, b){ return (b.score - a.score)}); 
+
+    
+}
+    
+let pause = false;
 
 function gameloop() {
-    //again = undefined;
-    if(start){
-        if(pause){ 
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            var background = new Image();
-            background.src = "The_Griffin_House.png";
-            ctx.drawImage(background,0,0,1914,927);  
-            
-            for(var i = 0; i < blocks.length; i++){
-            
-            blocks[i].drawBlock();
+    if(pause){ 
+        count++; 
+        control++;
+        fast++;
+        
+        character.updateAnimation(); 
+        character.gravitation();
+    
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(background,0,0,1914,927);  
+        ground.drawBlock();
+        character.draw();
+
+        drawScore();
+        
+        for(var i = 0; i < blocks.length; i++){
             blocks[i].moveBlock();
+            blocks[i].imageBlock();
+
             if(collision(blocks[i])) {
-                    pause = false;
+                playerAlive = false; 
                 }
         } 
-        
-            character.drawCharacter();
-            character.movingCharacter(); 
+    }
+    if(!pause){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(background,0,0,1914,927);
+        ctx.font = "30px Arial";
+        ctx.fillText("Press K to start", 800, 80); 
+        ctx.textAlign = "center";  
+    }   
 
-            
-            ground.drawBlock();
-            character.gravitation();
-            count++;
-            window.requestAnimationFrame(gameloop);
+    if(playerAlive) {
+        window.requestAnimationFrame(gameloop); 
+    }
+
+    else if(!playerAlive){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        window.cancelAnimationFrame(gameloop);
+        ctx.font = "90px Arial";
+        ctx.textAlign = "center";
+        ctx.fillStyle = "red";
+        ctx.fillText("Game Over", canvas.width/2, 70);
+        ctx.fillText("Press R to restart", canvas.width/2, 910);
+        ctx.fillText("High-score: "+list[0].score, canvas.width/2, 200);
+        ctx.font = "10px Arial";
+    }
+}
+
+window.onload = function(){
+    start();
+};
+
+function start(){
+    playerAlive = true;
+    generateObstacles();
+    window.requestAnimationFrame(gameloop);
+}
+
+
+function restart(){
+    score = 0;
+    fast = 0;
+    start();
+}  
+
+document.addEventListener('keydown', function(e){
+    if(e.key == 'r'){
+        if(!playerAlive) {
+            restart();
+            control = 0;
         }
-        if(!pause){
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.font = "90px Arial";
-            ctx.fillText("Game Over", canvas.width/2, canvas.height/2);
-            ctx.fillStyle = "red";
-            ctx.textAlign = "center";
-            ctx.fillText("Press R to restart", canvas.width/2, 80);
-            ctx.font = "10px Arial";
-            ctx.fillStyle = "red";
-        }  
     }
-    if(!start){
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            var background = new Image();
-            background.src = "The_Griffin_House.png";
-            ctx.drawImage(background,0,0,1914,927);
-            ctx.font = "30px Arial";
-            ctx.fillText("Press K to start", 800, 80);
-            window.requestAnimationFrame(gameloop);
-    } 
-    if(restart){
-        return(!start);
-    }    
-}
-
-window.onload = gameloop();
-
-/*unction start(){
-    if(!again){
-        again = window.requestAnimationFrame(gameloop);
-    }
-}
-
-function stop(){
-    if(again){
-        window.cancelAnimationFrame(again);
-        again = undefined;
-    }
-}*/
-
-
+})   
 
 document.addEventListener('keydown', function(e){
     if(e.key == 'w'){
@@ -263,11 +282,6 @@ document.addEventListener('keyup', function(e){
 
 document.addEventListener('keydown', function(e){
     if(e.key == 'k'){
-        start = true;
-    }
-})
-document.addEventListener('keydown', function(e){
-    if(e.key == 'r'){
-        restart = true;
+        pause = true;
     }
 })
