@@ -89,23 +89,71 @@ class Block{
         if(speed < 400 && speed >= 375){
             this.x-=25;  
         }
+        if(speed < 425 && speed >= 400){
+            this.x-=26;  
+        }
+        if(speed < 450 && speed >= 425){
+            this.x-=27;  
+        }
+        if(speed < 475 && speed >= 450){
+            this.x-=28;  
+        }
+        if(speed < 500 && speed >= 475){
+            this.x-=29;  
+        }
+        if(speed < 525 && speed >= 500){
+            this.x-=30;  
+        }
+        if(speed < 550 && speed >= 525){
+            this.x-=31;  
+        }
+        if(speed < 575 && speed >= 550){
+            this.x-=32;  
+        }
+        if(speed < 600 && speed >= 575){
+            this.x-=33;  
+        }
+        if(speed < 625 && speed >= 600){
+            this.x-=34;  
+        }
+        if(speed < 650 && speed >= 625){
+            this.x-=35;  
+        }
+        if(speed < 675 && speed >= 650){
+            this.x-=36;  
+        }
+        if(speed < 700 && speed >= 675){
+            this.x-=37;  
+        }
+        if(speed < 725 && speed >= 700){
+            this.x-=38;  
+        }
+        if(speed < 750 && speed >= 725){
+            this.x-=39;  
+        }
     }    
 }
 
 let ground = new Block(0,760, 1914, 184, "lightgrey");
-
+let removed;
 
 //Det genereras 500 objekt, och det ritas ut slumpmässigt på kanvasen mellan avstånden 550px och 650px;
 let blocks;
+let blockXPos = 500;
 function generateObstacles(){ 
-    let xPos = 500;
+    
     blocks = [];
 
-    for(let a=0;a<500;a++) {
-        let distance = Math.floor((Math.random() * 650) + 550)
-        xPos += distance;
-        blocks.push(new Block(xPos,700,60,60)); 
+    for(let a=0;a<10;a++) {
+        newBlock();
     }
+}
+
+function newBlock(){
+    let distance = Math.floor((Math.random() * 650) + 550);
+    blockXPos += distance;
+    blocks.push(new Block(blockXPos,700,60,60));
+
 }
 
 //*********************************************************************************************
@@ -187,60 +235,15 @@ class Coin{
 
 
 let coins;
+let xPosition = 2000;
 function generateCoins(){
-    let xPosition = 2000;
+    
     coins = [];
 
-    for(let c=0;c<250;c++) {
-        let dis = Math.floor((Math.random() * 350) + 200)
+    for(let c=0;c<10;c++) {
+        let dis = Math.floor((Math.random() * 450) + 300)
         xPosition += dis;
         coins.push(new Coin(xPosition, 500, 30, 30)); 
-    }
-}
-
-
-//**************************************************************************
-//Varje gång som man kolliderar med ett mynt så försvinner den och det läggs ett värde på "Coins", och ifall man tjänar ihop minst 10 mynt kan man börja att köpa saker
-let point = 0;
-let xLife = 0;
-let pointCheck = 0;
-let coin = false;
-
-function pointSystem(){
-    ctx.font = "70px Arial";
-    ctx.fillStyle = "yellow";
-    ctx.fillText("Coins: "+point,1750,70);
-
-    for(let p=0; p<coins.length; p++){
-        coins[p].MoveCoin();
-        coins[p].imageCoin();
-
-        if(collision(coins[p])){
-            coins.splice(0,1);
-            point += 1;
-        }
-    }
-
-    //Om man har samlat ihop minst 10 mynt kan man köpa ett extra liv
-    if(point >= 10){
-        coin = true;
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "yellow";
-        ctx.fillText("Press Q for an extra life", 1750, 100);
-    }
-
-    //Om man har samlat ihop minst 15 mynt kan man göra ett super jump
-    if(point >= 15){
-        coin = true;
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "yellow";
-        ctx.fillText("Press E for a super jump", 1750, 130);
-    }
-
-    if(xLife >= 0){
-        ctx.font = "70px Arial";
-        ctx.fillStyle = "yellow";
-        ctx.fillText("Extra lives: "+xLife,200,70);
     }
 }
 //**************************************************************************
@@ -367,6 +370,61 @@ function drawScore(){
     
 }
 
+//**************************************************************************
+//Varje gång som man kolliderar med ett mynt så försvinner den och det läggs ett värde på "Coins", och ifall man tjänar ihop minst 10 mynt kan man börja att köpa saker
+let point = 0;
+let xLife = 0;
+let pointCheck = 0;
+let coin = false;
+
+function pointSystem(){
+    ctx.font = "70px Arial";
+    ctx.fillStyle = "yellow";
+    ctx.fillText("Coins: "+point,1750,70);
+
+    for(let p=0; p<coins.length; p++){
+        coins[p].MoveCoin();
+        coins[p].imageCoin();
+
+        if(collision(coins[0] || coins[1])){
+            coins.push(new Coin(xPosition, 500, 30, 30));
+            coins.splice(0,1);
+            point += 1;
+        }
+    }
+
+    //Om man har samlat ihop minst 10 mynt kan man köpa ett extra liv
+    if(point >= 10){
+        coin = true;
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "brown";
+        ctx.fillText("Press Q for an extra life    cost: 10x coins", 350, 800);
+    }
+
+    //Om man har samlat ihop minst 15 mynt kan man göra ett super jump
+    if(point >= 15){
+        coin = true;
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "brown";
+        ctx.fillText("Press E for a super jump    cost: 15x coins", 355, 835);
+    }
+
+    //Om man har samlat ihop minst 15 mynt kan man rensa ett visst antal stenar framför karaktären
+    if(point >= 20){
+        coin = true;
+        ctx.font = "30px Arial";
+        ctx.fillStyle = "brown";
+        ctx.fillText("Press S to clear some stones    cost: 20x coins", 385, 870);
+    }
+
+    //Antalet extraliv visas upp på kanvasen
+    if(xLife >= 0){
+        ctx.font = "70px Arial";
+        ctx.fillStyle = "yellow";
+        ctx.fillText("Extra lives: "+xLife,200,70);
+    }
+}
+
 //***************************************************************************************
 let pause = false;
 
@@ -399,7 +457,7 @@ function gameloop(){
         for(let i=0; i<blocks.length; i++){
             blocks[i].moveBlock();
             blocks[i].imageBlock();
-
+            
             //Om karaktären kolliderar med sten utan något extraliv förlorar man
             if(collision(blocks[i]) && xLife == -1){
                 playerAlive = false;
@@ -414,6 +472,16 @@ function gameloop(){
                    pointCheck = 0;  
                 }  
             } 
+        }
+
+        if(blocks[0].x <= 0){
+            blocks.push(new Block(blockXPos,700,60,60));
+            blocks.splice(0,1);
+        }
+
+        if(coins[0].x <= 0){
+            coins.push(new Coin(xPosition, 500, 30, 30));
+            coins.splice(0,1);
         }
     } 
         
@@ -468,6 +536,7 @@ function restart(){
     point = 0;
     control = 0;
     xLife ++;
+    blockXPos = 500;
     start();
 }  
 
@@ -518,7 +587,7 @@ document.addEventListener('keydown', function(e){
 document.addEventListener('keydown', function(e){
     if(e.key == 'e'){
         if(coin && point >= 15){
-            character.jumpSpeed = 44;
+            character.jumpSpeed = 40;
             jump = true;
             point -= 15;
             coin = false;  
@@ -531,5 +600,22 @@ document.addEventListener('keyup', function(e){
     if(e.key == 'e'){
         character.jumpSpeed = 14;
         jump = false;
+    }
+})
+
+//Klickar man på s knappen raderas de 15 första stenarna i listan
+document.addEventListener('keydown', function(e){
+    if(e.key == 's'){
+        if(coin && point >= 20){
+            blocks.splice(0,6);
+            point -= 20;
+            coin = false;  
+        }
+    }
+})
+
+document.addEventListener('keyup', function(e){
+    if(e.key == 's'){
+        blocks.push(new Block(blockXPos,700,60,60))
     }
 })
