@@ -8,8 +8,9 @@ background.src = "The_Griffin_House.png";
 
 //Variabler för hastigheten av mynten och stenarna
 let fast = 0;
-let speed = 0;
-
+let timer = 10;
+let speed = 25;
+let time = 1000;
 
 //***************************************************************************************
 class Block{
@@ -36,125 +37,34 @@ class Block{
     }
     //Objektet förflyttar sig utifrån en timer
     moveBlock(){
-        if(fast == 25){  //Om timern för variabeln fast når 25, så återställs den timern och det läggs på ett värde på variabeln speed
-            speed += 1;
-            fast = 0;
-        }
+        this.x -= 10 + fast;
         //Ifall värdet på variablen speed är under eller över/samma som ett visst värde, ändras hastigheten på stenarna
-        if(speed < 25){
-            this.x-=10;  
+        if(score == speed){
+            fast++;
+            timer++;
+            this.x -= 10 + fast;
+            speed += 25;
+            time -= 10 + timer;  
         }
-        if(speed < 50 && speed >= 25){
-            this.x-=11;  
-        }
-        if(speed < 75 && speed >= 50){
-            this.x-=12;  
-        }
-        if(speed < 100 && speed >= 75){
-            this.x-=13;  
-        }
-        if(speed < 125 && speed >= 100){
-            this.x-=14;  
-        }
-        if(speed < 150 && speed >= 125){
-            this.x-=15;  
-        }
-        if(speed < 175 && speed >= 150){
-            this.x-=16;  
-        }
-        if(speed < 200 && speed >= 175){
-            this.x-=17;  
-        }
-        if(speed < 225 && speed >= 200){
-            this.x-=18;  
-        }
-        if(speed < 250 && speed >= 225){
-            this.x-=19;  
-        }
-        if(speed < 275 && speed >= 250){
-            this.x-=20;  
-        }
-        if(speed < 300 && speed >= 275){
-            this.x-=21;  
-        }
-        if(speed < 325 && speed >= 300){
-            this.x-=22;  
-        }
-        if(speed < 350 && speed >= 325){
-            this.x-=23;  
-        }
-        if(speed < 375 && speed >= 350){
-            this.x-=24;  
-        }
-        if(speed < 400 && speed >= 375){
-            this.x-=25;  
-        }
-        if(speed < 425 && speed >= 400){
-            this.x-=26;  
-        }
-        if(speed < 450 && speed >= 425){
-            this.x-=27;  
-        }
-        if(speed < 475 && speed >= 450){
-            this.x-=28;  
-        }
-        if(speed < 500 && speed >= 475){
-            this.x-=29;  
-        }
-        if(speed < 525 && speed >= 500){
-            this.x-=30;  
-        }
-        if(speed < 550 && speed >= 525){
-            this.x-=31;  
-        }
-        if(speed < 575 && speed >= 550){
-            this.x-=32;  
-        }
-        if(speed < 600 && speed >= 575){
-            this.x-=33;  
-        }
-        if(speed < 625 && speed >= 600){
-            this.x-=34;  
-        }
-        if(speed < 650 && speed >= 625){
-            this.x-=35;  
-        }
-        if(speed < 675 && speed >= 650){
-            this.x-=36;  
-        }
-        if(speed < 700 && speed >= 675){
-            this.x-=37;  
-        }
-        if(speed < 725 && speed >= 700){
-            this.x-=38;  
-        }
-        if(speed < 750 && speed >= 725){
-            this.x-=39;  
-        }
+        
     }    
 }
 
 let ground = new Block(0,760, 1914, 184, "lightgrey");
-let removed;
 
-//Det genereras 500 objekt, och det ritas ut slumpmässigt på kanvasen mellan avstånden 550px och 650px;
+//Det genereras 10 objekt, och det ritas ut slumpmässigt på kanvasen mellan avstånden 550px och 650px;
 let blocks;
-let blockXPos = 500;
+//let blockXPos = 500;
+
+blocks = [];
 function generateObstacles(){ 
-    
-    blocks = [];
-
-    for(let a=0;a<10;a++) {
-        newBlock();
-    }
+    let distance = Math.floor((Math.random() * (950-700)) + 3014);
+    //blockXPos += distance;
+    blocks.push(new Block(distance,700,60,60));
 }
 
-function newBlock(){
-    let distance = Math.floor((Math.random() * 650) + 550);
-    blockXPos += distance;
-    blocks.push(new Block(blockXPos,700,60,60));
+setInterval(function(){generateObstacles()},time);
 
-}
 
 //*********************************************************************************************
 class Coin{
@@ -235,17 +145,14 @@ class Coin{
 
 
 let coins;
-let xPosition = 2000;
-function generateCoins(){
-    
-    coins = [];
+coins = [];
+let dis = Math.floor((Math.random() * (950 - 650)) + 1914);
 
-    for(let c=0;c<10;c++) {
-        let dis = Math.floor((Math.random() * 450) + 300)
-        xPosition += dis;
-        coins.push(new Coin(xPosition, 500, 30, 30)); 
-    }
+function generateCoins(){
+    coins.push(new Coin(dis, 500, 30, 30)); 
 }
+
+setInterval(function(){generateCoins()},time);
 //**************************************************************************
 
 let count = 0;
@@ -386,8 +293,7 @@ function pointSystem(){
         coins[p].MoveCoin();
         coins[p].imageCoin();
 
-        if(collision(coins[0] || coins[1])){
-            coins.push(new Coin(xPosition, 500, 30, 30));
+        if(collision(coins[0] || coins[1] || coins[2] || coins[3] || coins[4] || coins[5])){
             coins.splice(0,1);
             point += 1;
         }
@@ -435,7 +341,6 @@ function gameloop(){
         //Alla räknare börjar att köras
         count++; 
         control++;
-        fast++;
         
         //Karaktärens egenskaper utförs
         character.updateAnimation(); 
@@ -475,14 +380,14 @@ function gameloop(){
         }
 
         if(blocks[0].x <= 0){
-            blocks.push(new Block(blockXPos,700,60,60));
             blocks.splice(0,1);
         }
 
         if(coins[0].x <= 0){
-            coins.push(new Coin(xPosition, 500, 30, 30));
             coins.splice(0,1);
         }
+
+        
     } 
         
     //Ifall booleanen inte är sann, ska spelet vara nollställt 
@@ -524,6 +429,7 @@ window.onload = function(){
 function start(){
     playerAlive = true;
     generateObstacles();
+    
     generateCoins();
     window.requestAnimationFrame(gameloop);
 }
@@ -535,8 +441,8 @@ function restart(){
     speed = 0;
     point = 0;
     control = 0;
+    blocks = [];
     xLife ++;
-    blockXPos = 500;
     start();
 }  
 
@@ -575,7 +481,7 @@ document.addEventListener('keydown', function(e){
 //Klickar man på q får man ett extraliv och det dras av 10 mynt (om man har minst 10 mynt)
 document.addEventListener('keydown', function(e){
     if(e.key == 'q'){
-        if(coin && point >= 10){
+        if(point >= 10 && coin == true){
             xLife += 1;
             point -= 10;
             coin = false;  
@@ -586,7 +492,7 @@ document.addEventListener('keydown', function(e){
 //Klickar man på e hoppar man extra högt
 document.addEventListener('keydown', function(e){
     if(e.key == 'e'){
-        if(coin && point >= 15){
+        if(point >= 15 && coin == true){
             character.jumpSpeed = 40;
             jump = true;
             point -= 15;
@@ -606,16 +512,12 @@ document.addEventListener('keyup', function(e){
 //Klickar man på s knappen raderas de 15 första stenarna i listan
 document.addEventListener('keydown', function(e){
     if(e.key == 's'){
-        if(coin && point >= 20){
-            blocks.splice(0,6);
+        if(point >= 20 && coin == true){
+            blocks.splice(0,3);
+            console.log(blocks.length);
             point -= 20;
-            coin = false;  
+            coin = false;
+            console.log(blocks);  
         }
-    }
-})
-
-document.addEventListener('keyup', function(e){
-    if(e.key == 's'){
-        blocks.push(new Block(blockXPos,700,60,60))
     }
 })
