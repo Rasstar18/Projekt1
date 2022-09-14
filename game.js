@@ -8,7 +8,6 @@ background.src = "The_Griffin_House.png";
 
 //Variabler för hastigheten av mynten och stenarna
 let fast = 0;
-let timer = 10;
 let speed = 25;
 let time = 1000;
 
@@ -37,15 +36,8 @@ class Block{
     }
     //Objektet förflyttar sig utifrån en timer
     moveBlock(){
-        this.x -= 10 + fast;
+        this.x -= 15 + fast;
         //Ifall värdet på variablen speed är under eller över/samma som ett visst värde, ändras hastigheten på stenarna
-        if(score == speed){
-            fast++;
-            timer++;
-            this.x -= 10 + fast;
-            speed += 25;
-            time -= 10 + timer;  
-        }
         
     }    
 }
@@ -57,13 +49,15 @@ let blocks;
 //let blockXPos = 500;
 
 blocks = [];
+let distance = Math.floor((Math.random() * (950-700)) + 3014);
 function generateObstacles(){ 
-    let distance = Math.floor((Math.random() * (950-700)) + 3014);
+    
     //blockXPos += distance;
     blocks.push(new Block(distance,700,60,60));
 }
 
-setInterval(function(){generateObstacles()},time);
+
+
 
 
 //*********************************************************************************************
@@ -88,71 +82,19 @@ class Coin{
     }
 
     MoveCoin(){
-        if(fast == 25){
-            speed += 1;
-            fast = 0;
-        }
-        if(speed < 25){
-            this.x-=10;  
-        }
-        if(speed < 50 && speed >= 25){
-            this.x-=11;  
-        }
-        if(speed < 75 && speed >= 50){
-            this.x-=12;  
-        }
-        if(speed < 100 && speed >= 75){
-            this.x-=13;  
-        }
-        if(speed < 125 && speed >= 100){
-            this.x-=14;  
-        }
-        if(speed < 150 && speed >= 125){
-            this.x-=15;  
-        }
-        if(speed < 175 && speed >= 150){
-            this.x-=16;  
-        }
-        if(speed < 200 && speed >= 175){
-            this.x-=17;  
-        }
-        if(speed < 225 && speed >= 200){
-            this.x-=18;  
-        }
-        if(speed < 250 && speed >= 225){
-            this.x-=19;  
-        }
-        if(speed < 275 && speed >= 250){
-            this.x-=20;  
-        }
-        if(speed < 300 && speed >= 275){
-            this.x-=21;  
-        }
-        if(speed < 325 && speed >= 300){
-            this.x-=22;  
-        }
-        if(speed < 350 && speed >= 325){
-            this.x-=23;  
-        }
-        if(speed < 375 && speed >= 350){
-            this.x-=24;  
-        }
-        if(speed < 400 && speed >= 375){
-            this.x-=25;  
-        } 
+        this.x -= 15 + fast;
     }
 }
 
 
 let coins;
 coins = [];
-let dis = Math.floor((Math.random() * (950 - 650)) + 1914);
+let dis = Math.floor((Math.random() * (950 - 650)) + 3014);
 
 function generateCoins(){
     coins.push(new Coin(dis, 500, 30, 30)); 
 }
 
-setInterval(function(){generateCoins()},time);
 //**************************************************************************
 
 let count = 0;
@@ -331,9 +273,24 @@ function pointSystem(){
     }
 }
 
+
 //***************************************************************************************
 let pause = false;
 
+function timer(){
+    if(score == speed){
+        time -= 10;
+        fast++;
+        speed += 25;
+    } 
+} 
+
+setInterval(function(){
+    generateObstacles();
+    generateCoins();
+},time); 
+    
+   
 //Spelet startas 
 function gameloop(){
     //Ifall booleanen är sann, ska spelet köras
@@ -358,6 +315,8 @@ function gameloop(){
         drawScore();
         pointSystem();
 
+        timer();
+       console.log(time); 
         //Stenarna ritas ut och kollideringsfunktionen utförs
         for(let i=0; i<blocks.length; i++){
             blocks[i].moveBlock();
@@ -379,13 +338,20 @@ function gameloop(){
             } 
         }
 
-        if(blocks[0].x <= 0){
-            blocks.splice(0,1);
-        }
+if(blocks.length > 3){
+    if(blocks[0].x <= 0){
+        blocks.splice(0,1);
+    }
+}
+if(blocks.length <= 3){
+    blocks.push(new Block(distance,700,60,60));
+}
 
-        if(coins[0].x <= 0){
-            coins.splice(0,1);
-        }
+if(coins[0].x <= 0){
+    coins.splice(0,1);
+}
+
+        
 
         
     } 
@@ -418,7 +384,6 @@ function gameloop(){
     }
 }
 
-
 //************************************************************************************
 //Funktionen start körs upp på hemsidan
 window.onload = function(){
@@ -429,7 +394,6 @@ window.onload = function(){
 function start(){
     playerAlive = true;
     generateObstacles();
-    
     generateCoins();
     window.requestAnimationFrame(gameloop);
 }
@@ -441,11 +405,12 @@ function restart(){
     speed = 0;
     point = 0;
     control = 0;
+    time = 1000;
     blocks = [];
+    coins = [];
     xLife ++;
     start();
 }  
-
 
 //********************************************************************************************
 //Om man klickar på R startar restart functionen
