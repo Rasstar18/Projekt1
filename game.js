@@ -344,11 +344,16 @@ if(blocks.length > 3){
     }
 }
 if(blocks.length <= 3){
-    blocks.push(new Block(distance,700,60,60));
+    blocks.push(new Block(3014,700,60,60));
 }
 
-if(coins[0].x <= 0){
-    coins.splice(0,1);
+if(coins.length > 3){
+    if(coins[0].x <= 0){
+        coins.splice(0,1);
+    } 
+}
+if(coins.length <= 3){
+    coins.push(new Coin(3014,700,60,60));
 }
 
         
