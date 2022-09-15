@@ -5,6 +5,8 @@ var ctx = canvas.getContext("2d");
 
 let background = new Image();
 background.src = "The_Griffin_House.png";
+let logo = new Image();
+logo.src = "Family run.png";
 
 //Variabler för hastigheten av mynten och stenarna
 let fast = 0;
@@ -36,7 +38,7 @@ class Block{
     }
     //Objektet förflyttar sig utifrån en timer
     moveBlock(){
-        this.x -= 15 + fast;
+        this.x -= 20 + fast;
         //Ifall värdet på variablen speed är under eller över/samma som ett visst värde, ändras hastigheten på stenarna
         
     }    
@@ -46,18 +48,15 @@ let ground = new Block(0,760, 1914, 184, "lightgrey");
 
 //Det genereras 10 objekt, och det ritas ut slumpmässigt på kanvasen mellan avstånden 550px och 650px;
 let blocks;
-//let blockXPos = 500;
-
 blocks = [];
-let distance = Math.floor((Math.random() * (950-700)) + 3014);
+
+let blockXPos = 3014;
+
 function generateObstacles(){ 
-    
-    //blockXPos += distance;
-    blocks.push(new Block(distance,700,60,60));
+    let distance = Math.floor((Math.random() * 501) + 11);
+    blockXPos += distance;
+    blocks.push(new Block(blockXPos,700,60,60));
 }
-
-
-
 
 
 //*********************************************************************************************
@@ -68,12 +67,6 @@ class Coin{
         this.width = width;
         this.height = height;
     }
-  
-    /*drawCoin(){
-        ctx.beginPath();
-        ctx.rect(this.x, this.y, this.width, this.height);
-        ctx.fill();
-    }*/
     
     imageCoin(){
         var coinPng = new Image();
@@ -82,17 +75,20 @@ class Coin{
     }
 
     MoveCoin(){
-        this.x -= 15 + fast;
+        this.x -= 20 + fast;
     }
 }
 
 
 let coins;
 coins = [];
-let dis = Math.floor((Math.random() * (950 - 650)) + 3014);
+
+let coinXPos = 3214;
 
 function generateCoins(){
-    coins.push(new Coin(dis, 500, 30, 30)); 
+    let dis = Math.floor((Math.random() * 1951) + 11);
+    coinXPos += dis;
+    coins.push(new Coin(coinXPos, 500, 30, 30)); 
 }
 
 //**************************************************************************
@@ -209,14 +205,14 @@ function drawScore(){
     //Avståndsräknaren visar sitt nuvarande värde
     ctx.font = "80px Arial";
     ctx.fillStyle = "yellow";
-    ctx.fillText(score,850,70);
+    ctx.fillText(score,950,70);
 
     //Det högsta värdet som Avståndsräknaren har fått medans gameloopen körs, läggs till i en lista
     highscore = {score: score};
     list.push(highscore);
-    list.sort(function(a, b){ return (b.score - a.score)}); 
-
-    
+    list.sort(function(a, b){ 
+        return (b.score - a.score);
+    });
 }
 
 //**************************************************************************
@@ -235,34 +231,38 @@ function pointSystem(){
         coins[p].MoveCoin();
         coins[p].imageCoin();
 
-        if(collision(coins[0] || coins[1] || coins[2] || coins[3] || coins[4] || coins[5])){
+        if(collision(coins[0] || coins[1] || coins[2])){
             coins.splice(0,1);
+            ctx.beginPath();
+            ctx.rect(character.x + 20, character.y - 20, 40, 40);
+            ctx.fillStyle = "FFDF00";
+            ctx.fill();
             point += 1;
         }
     }
 
-    //Om man har samlat ihop minst 10 mynt kan man köpa ett extra liv
+    //Om man har samlat ihop minst 15 mynt kan man göra ett super jump
     if(point >= 10){
         coin = true;
         ctx.font = "30px Arial";
         ctx.fillStyle = "brown";
-        ctx.fillText("Press Q for an extra life    cost: 10x coins", 350, 800);
+        ctx.fillText("Press S for a SUPER jump -- cost: 10x coins", 360, 800);
     }
 
-    //Om man har samlat ihop minst 15 mynt kan man göra ett super jump
+    //Om man har samlat ihop minst 15 mynt kan man rensa ett visst antal stenar framför karaktären
     if(point >= 15){
         coin = true;
         ctx.font = "30px Arial";
         ctx.fillStyle = "brown";
-        ctx.fillText("Press E for a super jump    cost: 15x coins", 355, 835);
+        ctx.fillText("Press Q to clear some stones -- cost: 15x coins", 415, 845);
     }
 
-    //Om man har samlat ihop minst 15 mynt kan man rensa ett visst antal stenar framför karaktären
+    //Om man har samlat ihop minst 10 mynt kan man köpa ett extra liv
     if(point >= 20){
         coin = true;
         ctx.font = "30px Arial";
         ctx.fillStyle = "brown";
-        ctx.fillText("Press S to clear some stones    cost: 20x coins", 385, 870);
+        ctx.fillText("Press E for an extra life -- cost: 20x coins", 395, 890);
     }
 
     //Antalet extraliv visas upp på kanvasen
@@ -278,18 +278,12 @@ function pointSystem(){
 let pause = false;
 
 function timer(){
-    if(score == speed){
-        time -= 10;
-        fast++;
-        speed += 25;
-    } 
-} 
-
-setInterval(function(){
     generateObstacles();
     generateCoins();
-},time); 
-    
+    setTimeout(function(){
+        timer();
+    },time);
+} 
    
 //Spelet startas 
 function gameloop(){
@@ -315,8 +309,12 @@ function gameloop(){
         drawScore();
         pointSystem();
 
-        timer();
-       console.log(time); 
+        if(score == speed){
+            time *= 0.96;
+            fast++;
+            speed += 25;
+        } 
+
         //Stenarna ritas ut och kollideringsfunktionen utförs
         for(let i=0; i<blocks.length; i++){
             blocks[i].moveBlock();
@@ -337,37 +335,25 @@ function gameloop(){
                 }  
             } 
         }
-
-if(blocks.length > 3){
+    
     if(blocks[0].x <= 0){
-        blocks.splice(0,1);
-    }
-}
-if(blocks.length <= 3){
-    blocks.push(new Block(3014,700,60,60));
-}
+            blocks.splice(0,1);
+        }
 
-if(coins.length > 3){
+
     if(coins[0].x <= 0){
         coins.splice(0,1);
-    } 
-}
-if(coins.length <= 3){
-    coins.push(new Coin(3014,700,60,60));
-}
-
-        
-
-        
-    } 
+    }   
+} 
         
     //Ifall booleanen inte är sann, ska spelet vara nollställt 
     if(!pause){
         ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.drawImage(background,0,0,1914,927);
-        ctx.font = "30px Arial";
-        ctx.fillText("Press K to start", 950, 80); 
-        ctx.textAlign = "center";  
+        ctx.font = "60px Arial";
+        ctx.fillText("Press K to start", 950, 800); 
+        ctx.textAlign = "center"; 
+        ctx.drawImage(logo,650,-10,585,359); 
     }   
 
     //Om karaktären är vid liv ska spelet vara igång
@@ -384,8 +370,9 @@ if(coins.length <= 3){
         ctx.fillStyle = "red";
         ctx.fillText("Game Over", canvas.width/2, 70);
         ctx.fillText("Press R to restart", canvas.width/2, 910);
+        ctx.font = "60px Arial";
         ctx.fillText("High-score: "+list[0].score, canvas.width/2, 200); //Listan med högsta värdet från avståndsräknaren visas upp på kanvasen 
-        ctx.font = "10px Arial";
+        
     }
 }
 
@@ -410,10 +397,12 @@ function restart(){
     speed = 0;
     point = 0;
     control = 0;
-    time = 1000;
     blocks = [];
     coins = [];
     xLife ++;
+    time = 1000;
+    blockXPos = 3014;
+    coinXPos = 3214;
     start();
 }  
 
@@ -445,27 +434,17 @@ document.addEventListener('keyup', function(e){
 document.addEventListener('keydown', function(e){
     if(e.key == 'k'){
         pause = true;
-    }
-})
-
-//Klickar man på q får man ett extraliv och det dras av 10 mynt (om man har minst 10 mynt)
-document.addEventListener('keydown', function(e){
-    if(e.key == 'q'){
-        if(point >= 10 && coin == true){
-            xLife += 1;
-            point -= 10;
-            coin = false;  
-        }
+        timer();
     }
 })
 
 //Klickar man på e hoppar man extra högt
 document.addEventListener('keydown', function(e){
-    if(e.key == 'e'){
-        if(point >= 15 && coin == true){
+    if(e.key == 's'){
+        if(point >= 10 && coin == true){
             character.jumpSpeed = 40;
             jump = true;
-            point -= 15;
+            point -= 10;
             coin = false;  
         }
     }
@@ -473,7 +452,7 @@ document.addEventListener('keydown', function(e){
 
 //Släpper man på e knappen återgår hoppet till vanlig höjd
 document.addEventListener('keyup', function(e){
-    if(e.key == 'e'){
+    if(e.key == 's'){
         character.jumpSpeed = 14;
         jump = false;
     }
@@ -481,13 +460,22 @@ document.addEventListener('keyup', function(e){
 
 //Klickar man på s knappen raderas de 15 första stenarna i listan
 document.addEventListener('keydown', function(e){
-    if(e.key == 's'){
-        if(point >= 20 && coin == true){
+    if(e.key == 'q'){
+        if(point >= 15 && coin == true){
             blocks.splice(0,3);
-            console.log(blocks.length);
+            point -= 15;
+            coin = false;  
+        }
+    }
+})
+
+//Klickar man på q får man ett extraliv och det dras av 10 mynt (om man har minst 10 mynt)
+document.addEventListener('keydown', function(e){
+    if(e.key == 'e'){
+        if(point >= 20 && coin == true){
+            xLife += 1;
             point -= 20;
-            coin = false;
-            console.log(blocks);  
+            coin = false;  
         }
     }
 })
