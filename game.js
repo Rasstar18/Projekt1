@@ -7,6 +7,8 @@ let background = new Image();
 background.src = "The_Griffin_House.png";
 let logo = new Image();
 logo.src = "Family run.png";
+let spark = new Image();
+spark.src = "Spark.png";
 
 //Variabler för hastigheten av mynten och stenarna
 let fast = 0;
@@ -38,7 +40,7 @@ class Block{
     }
     //Objektet förflyttar sig utifrån en timer
     moveBlock(){
-        this.x -= 20 + fast;
+        this.x -= 17 + fast;
         //Ifall värdet på variablen speed är under eller över/samma som ett visst värde, ändras hastigheten på stenarna
         
     }    
@@ -75,7 +77,7 @@ class Coin{
     }
 
     MoveCoin(){
-        this.x -= 20 + fast;
+        this.x -= 17 + fast;
     }
 }
 
@@ -86,7 +88,7 @@ coins = [];
 let coinXPos = 3214;
 
 function generateCoins(){
-    let dis = Math.floor((Math.random() * 1951) + 11);
+    let dis = Math.floor((Math.random() * 21));
     coinXPos += dis;
     coins.push(new Coin(coinXPos, 500, 30, 30)); 
 }
@@ -219,7 +221,6 @@ function drawScore(){
 //Varje gång som man kolliderar med ett mynt så försvinner den och det läggs ett värde på "Coins", och ifall man tjänar ihop minst 10 mynt kan man börja att köpa saker
 let point = 0;
 let xLife = 0;
-let pointCheck = 0;
 let coin = false;
 
 function pointSystem(){
@@ -232,11 +233,8 @@ function pointSystem(){
         coins[p].imageCoin();
 
         if(collision(coins[0] || coins[1] || coins[2])){
-            coins.splice(0,1);
-            ctx.beginPath();
-            ctx.rect(character.x + 20, character.y - 20, 40, 40);
-            ctx.fillStyle = "FFDF00";
-            ctx.fill();
+            coins.splice(0,1);      //När man kolliderar med ett mynt skapas en bild som ritas ut på karaktärens huvud 
+            ctx.drawImage(spark, character.x, character.y - 90, 150, 150);               
             point += 1;
         }
     }
@@ -269,7 +267,7 @@ function pointSystem(){
     if(xLife >= 0){
         ctx.font = "70px Arial";
         ctx.fillStyle = "yellow";
-        ctx.fillText("Extra lives: "+xLife,200,70);
+        ctx.fillText("Extra lives: "+xLife,210,70);
     }
 }
 
@@ -277,6 +275,7 @@ function pointSystem(){
 //***************************************************************************************
 let pause = false;
 
+//Alla objekt genereras efter en timer
 function timer(){
     generateObstacles();
     generateCoins();
@@ -309,6 +308,7 @@ function gameloop(){
         drawScore();
         pointSystem();
 
+        //Om avståndsräknaren har samma värde som variablen speed så ska hastigheten för genereringen i timern (time) öka exponentiellt, objektens hastighet öka med 1 och variabeln ska öka med 25 för nästa checkpoint
         if(score == speed){
             time *= 0.96;
             fast++;
@@ -319,23 +319,22 @@ function gameloop(){
         for(let i=0; i<blocks.length; i++){
             blocks[i].moveBlock();
             blocks[i].imageBlock();
+
             
             //Om karaktären kolliderar med sten utan något extraliv förlorar man
-            if(collision(blocks[i]) && xLife == -1){
+            if(collision(blocks[i]) && xLife == 0){
                 playerAlive = false;
             }  
             
             //Samma som innan, fast om man har minst 1 extraliv blir man av med ett. Men man får fortsätta på sitt spel  
-            if(collision(blocks[i]) && xLife >= 0){
-                pointCheck += 1;
-                playerAlive = true;
-                if(pointCheck >= 10){
-                   xLife -= 1;
-                   pointCheck = 0;  
-                }  
-            } 
+            if(collision(blocks[i]) && xLife > 0){
+                blocks.splice(0,1);
+                xLife -= 1;
+                 
+            }
         }
     
+    //Om antingen första stenen- eller första myntets x-position är mindre eller lika med kanvasens startposition så ska dem tas bort från sina respektive listor 
     if(blocks[0].x <= 0){
             blocks.splice(0,1);
         }
@@ -358,7 +357,10 @@ function gameloop(){
 
     //Om karaktären är vid liv ska spelet vara igång
     if(playerAlive) {
-        window.requestAnimationFrame(gameloop); 
+        setTimeout(() =>{
+            window.requestAnimationFrame(gameloop);
+        },1000/65);
+         
     }
 
     //Om karaktären är död ska spelet stanna och man trycka på en knapp för att kunna köra igen
@@ -370,8 +372,8 @@ function gameloop(){
         ctx.fillStyle = "red";
         ctx.fillText("Game Over", canvas.width/2, 70);
         ctx.fillText("Press R to restart", canvas.width/2, 910);
-        ctx.font = "60px Arial";
-        ctx.fillText("High-score: "+list[0].score, canvas.width/2, 200); //Listan med högsta värdet från avståndsräknaren visas upp på kanvasen 
+        ctx.font = "80px Arial";
+        ctx.fillText("High-score: "+list[0].score, canvas.width/2, 600); //Listan med högsta värdet från avståndsräknaren visas upp på kanvasen 
         
     }
 }
@@ -394,12 +396,11 @@ function start(){
 function restart(){
     score = 0;
     fast = 0;
-    speed = 0;
+    speed = 25;
     point = 0;
     control = 0;
     blocks = [];
     coins = [];
-    xLife ++;
     time = 1000;
     blockXPos = 3014;
     coinXPos = 3214;
